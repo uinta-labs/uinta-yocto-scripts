@@ -10,14 +10,14 @@ device_dir=$( if cat /proc/self/cgroup | grep -q docker; then if [ -d "/work" ];
 
 TRANSLATION=${TRANSLATION:-"v6"}
 
-BALENA_HOSTOS_BLOCK_CLASS="io.balena.image.class"
-BALENA_HOSTOS_BLOCK_STORE="io.balena.image.store"
-BALENA_HOSTOS_BLOCK_REQUIRES_REBOOT="io.balena.image.requires-reboot"
-BALENA_HOSTOS_BLOCK_BOOTABLE="io.balena.image.bootable"
-BALENA_HOSTOS_APP_UUID="io.balena.app-uuid"
-BALENA_HOSTOS_APP_ID="io.balena.app-id"
-BALENA_HOSTOS_RELEASE_VERSION="io.balena.release-version"
-BALENA_HOSTOS_SERVICE_NAME="io.balena.service-name"
+BALENA_HOSTOS_BLOCK_CLASS="io.uinta.image.class"
+BALENA_HOSTOS_BLOCK_STORE="io.uinta.image.store"
+BALENA_HOSTOS_BLOCK_REQUIRES_REBOOT="io.uinta.image.requires-reboot"
+BALENA_HOSTOS_BLOCK_BOOTABLE="io.uinta.image.bootable"
+BALENA_HOSTOS_APP_UUID="io.uinta.app-uuid"
+BALENA_HOSTOS_APP_ID="io.uinta.app-id"
+BALENA_HOSTOS_RELEASE_VERSION="io.uinta.release-version"
+BALENA_HOSTOS_SERVICE_NAME="io.uinta.service-name"
 
 DEBUG=0
 __pp_json() {

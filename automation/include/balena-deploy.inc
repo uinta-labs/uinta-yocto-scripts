@@ -57,7 +57,7 @@ balena_deploy_artifacts () {
 	cp -v "$_yocto_build_deploy/VERSION" "$_deploy_dir"
 	cp -v "$_yocto_build_deploy/VERSION_HOSTOS" "$_deploy_dir"
 	cp -v "$(readlink --canonicalize "$_yocto_build_deploy/$_image-${_device_type}.manifest")" "$_deploy_dir/$_image-$_device_type.manifest"
-	cp -v "$(readlink --canonicalize "$_yocto_build_deploy/balena-image-$_device_type.docker")" "$_deploy_dir/balena-image.docker"
+	cp -v "$(readlink --canonicalize "$_yocto_build_deploy/uinta-image-$_device_type.docker")" "$_deploy_dir/uinta-image.docker"
 
 	if [ -d "${_yocto_licenses_deploy}" ]; then
 		tar -czf "${_deploy_dir}/licenses.tar.gz" -C $(dirname "${_yocto_licenses_deploy}") $(basename "${_yocto_licenses_deploy}")
@@ -262,88 +262,6 @@ else
 fi
 EOSU
 		'
-}
-
-# Builds and deploys the specified block to BalenaCloud
-# Input arguments;
-#  $1: App name to deploy into
-#  $2: Device type for the app
-#  $3: Bootable flag
-#  $4: Path to the image to deploy
-#  $5: Deploy release to S3 and balenaCloud fleet
-#  $6: Deploy to balenaCloud fleet as draft (default) or final release
-#  $7: secureBoot feature flag
-#      - if set to yes this adds the secureBoot feature flag into the OS contract
-#      - needed for other components to identify secureBoot compatible software releases
-#  $8: Path to the working directory (defaults to device repository root)
-#  $9: BalenaCloud admin account (defaults to balena_os)
-#  $10: BalenaCloud email address (defaults to the balenaCloudEmail enviromental variable)
-#  $11: BalenaCloud password (defaults to the balenaCloudPassword enviromental variable)
-#  $12: ESR release flag (default to "ESR" environment variable)
-#  $13: Version of the helper image that is used to deploy the block
-#
-balena_deploy_block() {
-	local _appName="$1"
-	local _device_type="${2:-${MACHINE}}"
-	local _bootable=${3:-"0"}
-	local _image_path="${4:-""}"
-	local _deploy="${5:-no}"
-	local _final="${6:-no}"
-	local _sb_feature_flag="${7:-no}"
-	local _work_dir="${8:-"${device_dir}"}"
-	local _balenaos_account="${9:-"balena_os"}"
-	local _balenaCloudEmail="${10:-"${balenaCloudEmail}"}"
-	local _balenaCloudPassword="${11:-"${balenaCloudPassword}"}"
-	local _esr="${12}"
-	local _helperImageVersion="${13:-"${BALENA_YOCTO_SCRIPTS_VERSION}"}"
-	local _api_env=$(balena_lib_environment)
-
-	[ -z "${_device_type}" ] && echo "Device type is required" && return
-
-	[ -z "${_appName}" ] && echo "App name is required" && return
-	if [ -f "${_image_path}" ]; then
-		_image_path="$(readlink --canonicalize "${_image_path}")"
-	fi
-	_esr=${_esr:-"${ESR}"}
-
-	if [ ! -f "${_work_dir}/balena.yml" ]; then
-		if [ -f "${device_dir}/balena.yml" ]; then
-			cp "${device_dir}/balena.yml" "${_work_dir}"
-		else
-			_contract=$(balena_lib_build_contract $(balena_lib_get_slug ${_device_type}))
-			cp "${_contract}" "${_work_dir}/balena.yml"
-		fi
-	fi
-
-	HELPER_IMAGE_REPO="${HELPER_IMAGE_REPO:-"ghcr.io/balena-os/balena-yocto-scripts"}"
-	if ! balena_lib_docker_pull_helper_image "${HELPER_IMAGE_REPO}" "" "balena-push-env" helper_image_id; then
-		return 1
-	fi
-	docker run --rm -t \
-		-e APPNAME="${_appName}" \
-		-e API_ENV="${_api_env}" \
-		-e BALENAOS_TOKEN="$(balena_lib_token "${_api_env}")" \
-		-e BALENAOS_ACCOUNT="${_balenaos_account}" \
-		-e META_BALENA_VERSION="$(balena_lib_get_meta_balena_base_version)" \
-		-e RELEASE_VERSION="$(balena_lib_get_os_version)" \
-		-e MACHINE="${_device_type}" \
-		-e VERBOSE="${VERBOSE}" \
-		-e BOOTABLE="${_bootable}" \
-		-e DEPLOY="${_deploy}" \
-		-e FINAL="${_final}" \
-		-e ESR="${_esr:-"false"}" \
-		-e SECURE_BOOT_FEATURE_FLAG="${_sb_feature_flag:-"no"}" \
-		-e balenaCloudEmail="${_balenaCloudEmail}" \
-		-e balenaCloudPassword="${_balenaCloudPassword}" \
-		-e ESR="${_esr}" \
-		-e BALENA_YOCTO_SCRIPTS_VERSION="${_helperImageVersion}" \
-		-v "${_image_path}":/host/appimage.docker \
-		-v "${device_dir}":/work \
-		-v "${_work_dir}":/deploy \
-		--privileged \
-		"${helper_image_id}" /balena-deploy-block.sh
-
-	balena_lib_docker_remove_helper_images "${HELPER_IMAGE_REPO}"
 }
 
 # Initialize a compose file in the specified path

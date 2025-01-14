@@ -4,10 +4,6 @@
 # conf-notes.txt generator
 # ------------------------
 #
-# Signed-off-by: Theodor Gherzan <theodor@resin.io>
-# Signed-off-by: Andrei Gherzan <andrei@resin.io>
-# Signed-off-by: Florin Sarbu <florin@resin.io>
-#
 
 CONF=$1             # CONFNAME file directory location
 CONFNAME="conf-notes.txt"
@@ -19,7 +15,7 @@ CONF=$CONF/samples
 
 if [ $# -lt 2 ]; then
     echo -e 'Usage:\n'
-    echo -e "./generate-conf-notes.sh ./path/to/meta-balena-<target>/conf/ <json1> <json2> ...\n"
+    echo -e "./generate-conf-notes.sh ./path/to/meta-uinta-<target>/conf/ <json1> <json2> ...\n"
     exit 0
 fi
 
@@ -35,13 +31,10 @@ if ! `which jq > /dev/null 2>&1` || [ -z $CONF ] || [ ! -d $CONF ]; then
 fi
 
 echo -e "
-  _           _                   ___  ____
- | |__   __ _| | ___ _ __   __ _ / _ \/ ___|
- | '_ \ / _\` | |/ _ \ '_ \ / _\` | | | \___ \\
- | |_) | (_| | |  __/ | | | (_| | |_| |___) |
- |_.__/ \__,_|_|\___|_| |_|\__,_|\___/|____/
-
- -------------------------------------------- \n" > $CONF/$CONFNAME
+ -----------
+ | uintaOS |
+ -----------
+ \n" > $CONF/$CONFNAME
 
 IMAGES=""
 BOARDS_COMMANDS=""
@@ -63,7 +56,7 @@ done
 IMAGES=`echo $IMAGES | tr ' ' '\n' | sort -u`
 
 # Write conf file
-echo "Resin specific images available:" >> $CONF/$CONFNAME
+echo "Uinta specific images available:" >> $CONF/$CONFNAME
 for image in $IMAGES; do
     echo -e "\t$image" >> $CONF/$CONFNAME
 done
