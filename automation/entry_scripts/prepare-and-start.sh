@@ -37,11 +37,7 @@ sudo -H -u builder git config --get user.email
 
 # Start barys with all the arguments requested
 echo "[INFO] Running build as builder user..."
-if [ -d "${INSTALL_DIR}/balena-yocto-scripts" ]; then
-    sudo -H -u builder "${INSTALL_DIR}/balena-yocto-scripts/build/barys" $@ &
-else
-    sudo -H -u builder "${INSTALL_DIR}/resin-yocto-scripts/build/barys" $@ &
-fi
+sudo -H -u builder "${INSTALL_DIR}/uinta-yocto-scripts/build/barys" $@ &
 barys_pid=$!
 wait $barys_pid || true
 
